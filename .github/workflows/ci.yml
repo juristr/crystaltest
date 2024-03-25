@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  lint-and-e2e:
-    name: Lint and E2E Tests
+  build-and-e2e:
+    name: Build and E2E Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,13 +25,13 @@ jobs:
         run: npm install
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      - name: Run Lint
-        run: npx nx run-many --target=lint
+      - name: Run build
+        run: npx nx run-many --target=build
       - name: Run E2E Tests
         run: npx nx run-many --target=e2e
 
-  build:
-    name: Build Targets
+  lint:
+    name: Lint Targets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,8 +42,8 @@ jobs:
           cache: 'npm'
       - name: Install Dependencies
         run: npm install
-      - name: Run Build
-        run: npx nx run-many --target=build
+      - name: Run linting
+        run: npx nx run-many --target=lint
 
   test:
     name: Run Test Targets
@@ -63,7 +63,7 @@ jobs:
   report-qa:
     name: Report to Q&A
     runs-on: ubuntu-latest
-    needs: [test, lint-and-e2e]
+    needs: [test, build-and-e2e]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
@@ -79,7 +79,7 @@ jobs:
   deploy:
     name: Deploy to Firebase
     runs-on: ubuntu-latest
-    needs: [build, test, lint-and-e2e]
+    needs: [test, build-and-e2e]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
